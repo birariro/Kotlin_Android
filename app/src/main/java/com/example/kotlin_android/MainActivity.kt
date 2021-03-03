@@ -6,6 +6,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
@@ -19,22 +21,18 @@ class MainActivity : AppCompatActivity() {
         val todo_edit:EditText = findViewById(R.id.todo_edit)
         val add_button:Button = findViewById(R.id.add_button)
         val resultText:TextView = findViewById(R.id.resultText)
-        val db = Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java, "todo-db")
-                .build()
 
-            db.TodoDAO().GetAll().observe(this, Observer {
+        val viewModel = ViewModelProvider(this, MainViewModel.Factory(application)).get(MainViewModel::class.java)
+
+        viewModel.getAll().observe(this, {
                 resultText.text=it.toString();
             })
 
-           add_button.setOnClickListener{
-               lifecycleScope.launch(Dispatchers.IO) {
-                   db.TodoDAO().Insert(Todo(todo_edit.text.toString()))
-               }
-
+       add_button.setOnClickListener{
+           lifecycleScope.launch(Dispatchers.IO) {
+               viewModel.insert(Todo(todo_edit.text.toString()))
            }
 
-
+       }
     }
 }
