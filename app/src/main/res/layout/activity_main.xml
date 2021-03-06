@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="mainActivityViewModel"
+            name="mainViewModel"
             type="com.example.kotlin_android.MainViewModel" />
     </data>
     <LinearLayout
@@ -14,27 +14,29 @@
         android:orientation="vertical"
         tools:context=".MainActivity">
 
+        <!--양방향 바인딩-->
         <EditText
             android:id="@+id/todo_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Name" />
-
+            android:text="@={mainViewModel.newTodo}" />
+        <!--람다-->
         <Button
             android:id="@+id/add_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" />
-
+            android:text="Button"
+            android:onClick="@{()-> mainViewModel.insert(mainViewModel.newTodo)}"
+            />
+        <!--바인딩-->
         <TextView
             android:id="@+id/resultText"
-            android:text="@{mainActivityViewModel.}"
+            android:text="@{mainViewModel.todos.toString()}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
+            android:layout_weight="1"/>
 
     </LinearLayout>
 </layout>
