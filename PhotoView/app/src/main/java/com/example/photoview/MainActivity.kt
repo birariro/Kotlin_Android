@@ -1,8 +1,10 @@
 package com.example.photoview
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
             add(findViewById(R.id.imageView23))
         }
     }
+    private val imageUriList: MutableList<Uri> = mutableListOf()
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,19 +45,21 @@ class MainActivity : AppCompatActivity() {
         addPhotoButton.setOnClickListener {
             when{
                 ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED ->{
+                        this,android.Manifest.permission.READ_EXTERNAL_STORAGE )
+                        == PackageManager.PERMISSION_GRANTED ->{
                     //권한이 잘 부여가 되었을때
                     navigatePhotos()
                 }
                 //교육용
-                shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)->{
+                shouldShowRequestPermissionRationale(
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE)->{
                     // todo 교육용 팝업확인후 권한 팝업
                     showPermissionContextPopup()
                 }
                 else -> {
-                    requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),1000)
+                    requestPermissions(
+                            arrayOf(
+                                    android.Manifest.permission.READ_EXTERNAL_STORAGE),1000)
                 }
             }
         }
@@ -64,8 +69,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode) {
             1000 ->{
-                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    // todo 권한이 부여
+                if(grantResults.isNotEmpty() && grantResults[0]
+                        == PackageManager.PERMISSION_GRANTED){
                     navigatePhotos()
 
                 }else{
@@ -83,14 +88,38 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent,2000)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode != Activity.RESULT_OK) return
 
+        when(requestCode){
+            2000 ->{
+                val selectedImageUri:Uri? = data?.data
+                if(selectedImageUri != null){
+                    if(imageUriList.size == 6){
+                        Toast.makeText(this,"이미 사진이 꽉 찼습니다.",Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    imageUriList.add(selectedImageUri)
+                    imageViewList[imageUriList.size-1].setImageURI(selectedImageUri)
+                }else{
+                    Toast.makeText(this,"사진을 가져오지 못했습니다",Toast.LENGTH_SHORT).show()
+                }
+            }
+            else ->{
+                Toast.makeText(this,"사진을 가져오지 못했습니다.",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     @RequiresApi(Build.VERSION_CODES.M)
     private fun showPermissionContextPopup(){
         AlertDialog.Builder(this)
             .setTitle("권한이 필요합니다.")
-            .setMessage("전자액자에서 앱에서 사진을 불러오기위해 권한이 필요합니다.")
+            .setMessage("앱에서 사진을 가져오기 위해서는 권한이 필요.")
             .setPositiveButton("동의하기") { _, _ ->
-                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000)
+                requestPermissions(
+                        arrayOf(
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000)
             }
             .setNegativeButton("취소하기") { _, _ -> }
             .create().show()
