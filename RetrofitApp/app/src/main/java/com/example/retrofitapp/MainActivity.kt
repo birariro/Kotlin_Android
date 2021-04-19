@@ -95,7 +95,24 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "onCreate: 검색 버튼 클릭 / currentSearchType : $currentSearchType")
             handleSearchButtonUi()
         }
+
+
+        search_term_edit_text.addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
+
 
     private fun handleSearchButtonUi(){
         btn_progress.visibility = View.VISIBLE
