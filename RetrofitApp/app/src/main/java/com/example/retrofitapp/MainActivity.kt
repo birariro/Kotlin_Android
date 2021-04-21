@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
+import com.example.retrofitapp.retrofit.RetrofitManager
 import com.example.retrofitapp.utils.Constants.TAG
+import com.example.retrofitapp.utils.RESPONSE_STATE
 import com.example.retrofitapp.utils.SEARCH_TYPE
 import com.example.retrofitapp.utils.onMyTextChanged
 import com.google.android.material.textfield.TextInputEditText
@@ -93,24 +95,25 @@ class MainActivity : AppCompatActivity() {
         //버튼 클릭시
         btn_search.setOnClickListener {
             Log.d(TAG, "onCreate: 검색 버튼 클릭 / currentSearchType : $currentSearchType")
+            //검색 api 호출
+            RetrofitManager.instance.searchPhotos(
+                searchTerm = search_term_edit_text.toString(),
+                completion = { responseState, responseBody ->
+                    when (responseState) {
+                        RESPONSE_STATE.OKAY -> {
+                            Log.d(TAG, "API 호출 성공 $responseBody")
+                        }
+                        RESPONSE_STATE.FAIL -> {
+                            Toast.makeText(this, "API 에러", Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, "API 호출 실패 $responseBody")
+                        }
+                    }
+                })
             handleSearchButtonUi()
         }
 
 
-        search_term_edit_text.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                TODO("Not yet implemented")
-            }
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                TODO("Not yet implemented")
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                TODO("Not yet implemented")
-            }
-
-        })
     }
 
 
