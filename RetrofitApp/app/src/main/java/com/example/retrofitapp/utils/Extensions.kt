@@ -18,9 +18,14 @@ fun EditText.onMyTextChanged(completion:(Editable?) -> Unit){
         override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
         }
-
-
-
     })
+}
+
+// 문자열이 제이슨 형태인지 제이슨 배열 형태인지
+fun String?.isJsonObject():Boolean{
+    return this?.startsWith("{") ==true && this.endsWith("}")
+}
+fun String?.isJsonArray():Boolean{
+    return this?.startsWith("[") ==true && this.endsWith("]")
 }
 
