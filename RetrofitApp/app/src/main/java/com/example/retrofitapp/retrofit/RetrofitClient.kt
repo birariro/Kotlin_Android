@@ -1,6 +1,11 @@
 package com.example.retrofitapp.retrofit
 
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import com.example.retrofitapp.App
 import com.example.retrofitapp.utils.API
 import com.example.retrofitapp.utils.Constants.TAG
 import com.example.retrofitapp.utils.isJsonArray
@@ -64,8 +69,20 @@ object RetrofitClient {
                         .url(addedUrl)
                         .method(originalRequest.method,originalRequest.body)
                         .build()
-                return chain.proceed(finalRequest)
+                //return chain.proceed(finalRequest)
+
+                val response = chain.proceed(finalRequest)
+                if(response.code != 200){
+
+                    Handler(Looper.getMainLooper()).post{
+                        Toast.makeText(App.instance,"${response.code} 에러입니다",Toast.LENGTH_SHORT).show()
+                    }
+
+
+                }
+                return  response
             }
+
 
         })
         //위에서 설정한 기본 파라미터 인터셉터를 okhttp 클라이언트에 추가
