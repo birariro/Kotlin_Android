@@ -7,8 +7,8 @@ enum class SEARCH_TYPE{
     PHOTO,USER
 }
 
-enum class RESPONSE_STATE{
-    OKAY , FAIL
+enum class RESPONSE_STATUS{
+    OKAY , FAIL , NO_CONTENT
 }
 
 object API{

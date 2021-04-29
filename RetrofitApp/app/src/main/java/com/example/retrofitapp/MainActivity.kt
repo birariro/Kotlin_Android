@@ -5,20 +5,17 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import com.example.retrofitapp.retrofit.RetrofitManager
 import com.example.retrofitapp.utils.Constants.TAG
-import com.example.retrofitapp.utils.RESPONSE_STATE
+import com.example.retrofitapp.utils.RESPONSE_STATUS
 import com.example.retrofitapp.utils.SEARCH_TYPE
 import com.example.retrofitapp.utils.onMyTextChanged
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
@@ -95,6 +92,8 @@ class MainActivity : AppCompatActivity() {
         }
         //버튼 클릭시
         btn_search.setOnClickListener {
+            handleSearchButtonUi()
+
             Log.d(TAG, "onCreate: 검색 버튼 클릭 / currentSearchType : $currentSearchType")
             val userSearchInput = search_term_edit_text.text.toString()
             //검색 api 호출
@@ -102,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                 searchTerm = userSearchInput,
                 completion = { responseState, responseDataArrayList ->
                     when (responseState) {
-                        RESPONSE_STATE.OKAY -> {
+                        RESPONSE_STATUS.OKAY -> {
                             Log.d(TAG, "API 호출 성공 ${responseDataArrayList?.size}")
                             val intent =  Intent(this, PhotoCollectionActivity::class.java)
                             val bundle = Bundle()
@@ -112,13 +111,20 @@ class MainActivity : AppCompatActivity() {
 
                             startActivity(intent)
                         }
-                        RESPONSE_STATE.FAIL -> {
+                        RESPONSE_STATUS.FAIL -> {
                             Toast.makeText(this, "API 에러", Toast.LENGTH_SHORT).show()
                             Log.d(TAG, "API 호출 실패 $responseDataArrayList")
                         }
+                        RESPONSE_STATUS.NO_CONTENT ->{
+                            Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, "API 호출 실패 $responseDataArrayList")
+                        }
                     }
+                    btn_progress.visibility = View.INVISIBLE
+                    btn_search.text="검색"
+                    search_term_edit_text.setText("")
                 })
-            handleSearchButtonUi()
+
         }
 
 
@@ -130,9 +136,9 @@ class MainActivity : AppCompatActivity() {
         btn_progress.visibility = View.VISIBLE
         btn_search.visibility = View.INVISIBLE
 
-        Handler().postDelayed({
+       /* Handler().postDelayed({
             btn_progress.visibility = View.INVISIBLE
             btn_search.visibility = View.VISIBLE
-        },1500)
+        },1500)*/
     }
 }
