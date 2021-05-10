@@ -10,6 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import com.naver.maps.map.widget.LocationButtonView
@@ -19,7 +20,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class MainActivity : AppCompatActivity(),OnMapReadyCallback {
+class MainActivity : AppCompatActivity(),OnMapReadyCallback,Overlay.OnClickListener {
     private lateinit var naverMap:NaverMap
     private lateinit var locationSource :FusedLocationSource
     private val mapView:MapView by lazy { findViewById(R.id.mapView) }
@@ -40,6 +41,17 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
 
         recyclerView.adapter = recyclerAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        //viewPage의 page가 변경되었을때 호출된다.
+        viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val selectedHouseModel = viewPagerAdapter.currentList[position]
+                val cameraUpdate = CameraUpdate.scrollTo(LatLng(selectedHouseModel.lat,selectedHouseModel.lng))
+                        .animate(CameraAnimation.Easing)
+                naverMap.moveCamera(cameraUpdate)
+            }
+        })
     }
     override fun onMapReady(map: NaverMap) {
         naverMap = map
@@ -99,7 +111,7 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
             Log.d("TAG", "onResponse: ${house.toString()}")
             val marker = Marker()
             marker.position = LatLng(house.lat,house.lng)
-            //marker.onClickListener
+            marker.onClickListener = this
             marker.map = naverMap
             marker.tag = house.id
             marker.icon = MarkerIcons.BLACK
@@ -119,6 +131,17 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
             }
             return
         }
+    }
+    override fun onClick(overlay: Overlay): Boolean {
+
+        val selectedModel = viewPagerAdapter.currentList.firstOrNull(){
+            it.id == overlay.tag
+        }
+        selectedModel?.let {
+            val position = viewPagerAdapter.currentList.indexOf(it)
+            viewPager.currentItem = position
+        }
+        return true
     }
     override fun onStart() {
         super.onStart()
@@ -157,4 +180,6 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
     companion object{
         private const val LOCATION_PERMISSION_REQUEST_CODE=1004
     }
+
+
 }
