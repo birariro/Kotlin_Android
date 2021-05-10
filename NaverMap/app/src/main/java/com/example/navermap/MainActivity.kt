@@ -1,9 +1,11 @@
 package com.example.navermap
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -27,10 +29,22 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback,Overlay.OnClickListe
 
     private val viewPager :ViewPager2 by lazy { findViewById(R.id.houseViewPager) }
 
-    private val viewPagerAdapter = HouseViewPagerAdapter()
+    private val viewPagerAdapter = HouseViewPagerAdapter(itemClicked = {
+        val intent = Intent()
+                .apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT,"[지금 이 가격에 예약하세요] ${it.title} ${it.price} 사진 보기 : ${it.imgUrl}")
+                    type="text/plain"
+                }
+        startActivity(Intent.createChooser(intent,null))
+    })
     private val recyclerView:RecyclerView by lazy { findViewById(R.id.recycleView) }
     private val recyclerAdapter = HouseListAdapter()
     private val currentLocationButton:LocationButtonView by lazy { findViewById(R.id.currentLocationButton) }
+
+    private val bottomSheetTitleTextView:TextView by lazy {
+        findViewById(R.id.bottomSheetTitleTextView)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -94,6 +108,8 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback,Overlay.OnClickListe
                                 updateMarker(dto.items)
                                 viewPagerAdapter.submitList(dto.items)
                                 recyclerAdapter.submitList(dto.items)
+
+                                bottomSheetTitleTextView.text = "${dto.items.size} 개의 숙소"
                             }
                         }
 
