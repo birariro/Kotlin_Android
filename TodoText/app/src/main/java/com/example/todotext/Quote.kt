@@ -1,3 +1,6 @@
 package com.example.todotext
 
-data class Quote()
+data class Quote(
+    val quote : String,
+    val name : String
+)
